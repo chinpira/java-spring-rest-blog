@@ -8,6 +8,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -18,25 +19,39 @@ public class DatabaseLoader implements ApplicationRunner {
     private final String[] gadgets = {
             "Earbuds", "Speakers", "Tripod", "Instant Pot", "Coffee Cup", "Keyboard", "Sunglasses"};
     private final PostRepository postRepository;
+    private final AuthorRepository authorRepository;
     public List<Post> randomPosts = new ArrayList<>();
     public List<Author> authors = new ArrayList<>();
 
     @Autowired
-    public DatabaseLoader(PostRepository postRepository) {
+    public DatabaseLoader(PostRepository postRepository, AuthorRepository authorRepository) {
         this.postRepository = postRepository;
+        this.authorRepository = authorRepository;
     }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        authors.addAll(Arrays.asList(
+                new Author("sholderness", "Sarah",  "Holderness", "password"),
+                new Author("tbell", "Tom",  "Bell", "password"),
+                new Author("efisher", "Eric",  "Fisher", "password"),
+                new Author("csouza", "Carlos",  "Souza", "password")
+        ));
+
         IntStream.range(0,40).forEach(i->{
             String template = templates[i % templates.length];
             String gadget = gadgets[i % gadgets.length];
 
+            Author author = authors.get(i % authors.size());
+
             String title = String.format(template, gadget);
             Post post = new Post(title, "Lorem ipsum dolor sit amet, consectetur adipiscing elit… ");
+            post.setAuthor(author);
+            author.addPost(post);
             randomPosts.add(post);
         });
 
         postRepository.saveAll(randomPosts);
+        authorRepository.saveAll(authors);
     }
 }

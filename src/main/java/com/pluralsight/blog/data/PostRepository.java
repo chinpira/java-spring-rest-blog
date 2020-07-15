@@ -11,4 +11,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     // The @RestResource annotation allows us to provide an alias to the path (/containsTitle?title=... in this case)
     @RestResource(rel = "contains-title", path = "containsTitle")
     List<Post> findByTitleContaining(String title);
+
+    List<Post> findByAuthor_Lastname(String lastname);
 }
